@@ -10,23 +10,26 @@ import java.util.List;
 
 public class SchoolRepository {
 
-//    private static SchoolRepository instance;
-//    private SchoolApiClient mSchoolApiClient;
+    private static SchoolRepository instance;
+    //private MutableLiveData<List<SchoolList>> mSchoolList;
+    private SchoolApiClient mSchoolApiClient;
 //
-//    public static SchoolRepository getInstance(){
-//        if (instance == null){
-//            instance = new SchoolRepository();
-//        }
-//        return instance;
-//    }
-//
-//    private SchoolRepository(){
-//        mSchoolApiClient = SchoolApiClient.getInstance();
-//    }
-//
-//    public LiveData<List<SchoolList>> getSchools(){
-//        return mSchoolApiClient.getSchools();
-//    }
+    public static SchoolRepository getInstance() {
+        if (instance == null) {
+            instance = new SchoolRepository();
+        }
+        return instance;
+    }
+
+    private SchoolRepository(){
+        //mSchoolList = new MutableLiveData<>();
+        mSchoolApiClient = SchoolApiClient.getInstance();
+    }
+
+    public LiveData<List<SchoolList>> getSchools(){
+        //return mSchoolList;
+        return mSchoolApiClient.getSchoolList();
+    }
 //
 //    public void searchSchoolsApi(int pageNumber){
 //        if (pageNumber == 0){
