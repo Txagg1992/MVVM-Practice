@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.curiousapps.mvvm_practice.AppExecutors;
 import com.curiousapps.mvvm_practice.models.SchoolList;
 import com.curiousapps.mvvm_practice.requests.responses.SchoolListResponse;
+import com.google.gson.internal.$Gson$Preconditions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,37 +29,85 @@ public class SchoolApiClient {
     private static final String TAG = "SchoolApiClient";
     private static SchoolApiClient instance;
     private MutableLiveData<List<SchoolList>> mSchoolList;
-//    private RetrieveSchoolsRunnable mRetrieveSchoolsRunnable;
+    private RetrieveSchoolsRunnable mRetrieveSchoolsRunnable;
 
-    public static SchoolApiClient getInstance(){
-        if (instance == null){
+    public static SchoolApiClient getInstance() {
+        if (instance == null) {
             instance = new SchoolApiClient();
         }
         return instance;
     }
 
-    private SchoolApiClient(){
+    private SchoolApiClient() {
         //mSchools = new MutableLiveData<>();
         mSchoolList = new MutableLiveData<>();
     }
-    public LiveData<List<SchoolList>> getSchoolList(){
+
+    public LiveData<List<SchoolList>> getSchoolList() {
         return mSchoolList;
     }
 
-    public void searchSchoolsApi(){
-        final Future handler = AppExecutors.getInstance().networkIO().submit(new Runnable() {
-            @Override
-            public void run() {
-                // retrieve data from api
-            }
-        });
+    public void searchSchoolsApi(int limit, int offset) {
+        if (mRetrieveSchoolsRunnable != null){
+            mRetrieveSchoolsRunnable = null;
+        }
+        mRetrieveSchoolsRunnable = new RetrieveSchoolsRunnable(limit, offset);
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveSchoolsRunnable);
 
         AppExecutors.getInstance().networkIO().schedule(new Runnable() {
             @Override
             public void run() {
-             handler.cancel(true);
+                handler.cancel(true);
             }
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    private class RetrieveSchoolsRunnable implements Runnable {
+
+        private int limit;
+        private int offset;
+        boolean cancelRequest;
+
+        public RetrieveSchoolsRunnable(int limit, int offset) {
+            this.limit = limit;
+            this.offset = offset;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getSchools(limit, offset).execute();
+                Log.d(TAG, "Response in Client: " + response.code());
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    List<SchoolList> schoolLists = new ArrayList<>(((SchoolList) response.body()).getSchoolList());
+                    mSchoolList.postValue(schoolLists);
+                } else {
+                    String error = response.errorBody().string();
+                    Log.e(TAG, "run: Error in Client" + error);
+                    mSchoolList.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mSchoolList.postValue(null);
+            }
+        }
+
+        private Call<List<SchoolList>> getSchools(int limit, int offset) {
+            return ServiceGenerator.getSchoolApi().searchSchools(
+                    APP_TOKEN,
+                    String.valueOf(limit),
+                    String.valueOf(offset)
+            );
+        }
+
+        private void cancelRequest() {
+            Log.d(TAG, "CancelRequest: cancelling...");
+            cancelRequest = true;
+        }
     }
 
 //    public void searchSchoolsApi(int pageNumber){
