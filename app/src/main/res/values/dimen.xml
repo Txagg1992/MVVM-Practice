@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    CardView-->
+    <dimen name="card_name_text_size">24sp</dimen>
+    <dimen name="card_address_text_size">20sp</dimen>
+    <dimen name="card_phone_text_size">18sp</dimen>
+
+<!--    Detail-->
+    <dimen name="detail_name_text_size">24sp</dimen>
+    <dimen name="detail_address_text_size">20sp</dimen>
+    <dimen name="detail_phone_text_size">18sp</dimen>
+
+    <dimen name="recycler_loading_view_height">80dp</dimen>
+
+
+</resources>

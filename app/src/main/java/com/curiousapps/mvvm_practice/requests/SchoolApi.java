@@ -2,9 +2,6 @@ package com.curiousapps.mvvm_practice.requests;
 
 import com.curiousapps.mvvm_practice.models.SchoolList;
 import com.curiousapps.mvvm_practice.models.SchoolSAT;
-import com.curiousapps.mvvm_practice.models.PicObject;
-import com.curiousapps.mvvm_practice.requests.responses.SchoolListResponse;
-import com.curiousapps.mvvm_practice.requests.responses.SchoolSatResponse;
 
 import java.util.List;
 
@@ -14,21 +11,14 @@ import retrofit2.http.Query;
 
 public interface SchoolApi {
 
-    //Get List of schools limited to 150 schools, and 20 per page
+    //Get List of schools limited to 150 schools, and start at
     @GET("resource/s3k6-pzi2.json")
     Call<List<SchoolList>> searchSchools(
             @Query("$$app_token") String app_token,
             @Query("$limit") String limit,
-            @Query("$offset") String offset
+            @Query("$offset") int offset
     );
 
-    //Get List of schools from SchoolResponse
-    @GET("resource/s3k6-pzi2.json")
-    Call<SchoolListResponse> searchSchoolsList(
-            @Query("$$app_token") String app_token,
-            @Query("$limit") String limit,
-            @Query("$offset") String offset
-    );
 
     //Get Single response for SAT
     @GET("resource/f9bf-2cp4.json")
@@ -36,9 +26,6 @@ public interface SchoolApi {
             @Query("$$app_token") String app_token,
             @Query("dbn") String dbn
             );
-
-    @GET("users")
-    Call<List<PicObject>> getUserName();
 
     @GET("resource/s3k6-pzi2.json")
     Call<List<SchoolList>> searchOneSchool(
